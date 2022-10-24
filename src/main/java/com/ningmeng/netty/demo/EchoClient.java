@@ -3,10 +3,7 @@ package com.ningmeng.netty.demo;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -39,7 +36,20 @@ public class EchoClient {
               ch.pipeline().addLast(new EchoClientHandler());
             }
           });
-      ChannelFuture future = bootstrap.connect().sync();
+      ChannelFuture future = bootstrap.connect();
+      // sync
+      // future.sync();
+      // log.info("connected");
+      future.addListener((ChannelFutureListener) f -> {
+        if (f.isDone()) {
+          log.info("done");
+          if (f.isSuccess()) {
+            log.info("connected success");
+          }
+        } else {
+         log.info("connected error");
+        }
+      });
       future.channel().closeFuture().sync();
     } finally {
       loopGroup.shutdownGracefully().sync();
